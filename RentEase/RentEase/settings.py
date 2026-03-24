@@ -165,9 +165,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_PORT = os.environ.get("EMAIL_PORT")
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
@@ -209,12 +209,14 @@ CACHES = {
     }
 }
 
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID"),
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET"),
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
 
 
-PLATFORM_COMMISSION = os.environ.get("PLATFORM_COMMISSION"),
-OWNER_APPROVAL_TIMEOUT_HOURS = os.environ.get("OWNER_APPROVAL_TIMEOUT_HOURS"),
+PLATFORM_COMMISSION = float(os.environ.get("PLATFORM_COMMISSION", "0.10"))
+OWNER_APPROVAL_TIMEOUT_HOURS = int(
+    os.environ.get("OWNER_APPROVAL_TIMEOUT_HOURS", "24")
+)
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", os.environ.get("AWS_REGION"))
