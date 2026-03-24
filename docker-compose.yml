@@ -1,0 +1,89 @@
+version: "3.9"
+
+services:
+
+  
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+  
+  web:
+    build: .
+    container_name: django_app
+    command: python manage.py runserver 0.0.0.0:8000 
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: "django-insecure-4$w9b=1e832!t%1clfd)04o%i1y)r(hl1po2h_@e1$)$)ot4n9"
+      DEBUG: "True"
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+ 
+  celery:
+    build: .
+    container_name: celery_worker
+    command: celery -A RentEase worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: "django-insecure-4$w9b=1e832!t%1clfd)04o%i1y)r(hl1po2h_@e1$)$)ot4n9"
+      DEBUG: "True"
+      CELERY_BROKER_URL: redis://redis:6379/0
+
+  
+  
+  celery-beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A RentEase beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: "django-insecure-4$w9b=1e832!t%1clfd)04o%i1y)r(hl1po2h_@e1$)$)ot4n9"
+      DEBUG: "True"
+      CELERY_BROKER_URL: redis://redis:6379/0
+
+volumes:
+  postgres_data:
