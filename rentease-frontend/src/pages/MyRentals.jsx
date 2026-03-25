@@ -7,6 +7,8 @@ import useProfileStore from "../store/ProfileStore";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import { canPerformVerifiedActions } from "../utils/profileStatus";
 
+const MY_RENTALS_POLL_INTERVAL_MS = 30000;
+
 const MyRentals = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -37,7 +39,11 @@ const MyRentals = () => {
     window.addEventListener("realtime_update", refresh);
     window.addEventListener("new_notification", refresh);
 
-    const intervalId = setInterval(refresh, 6000);
+    const intervalId = setInterval(() => {
+      if (!document.hidden) {
+        refresh();
+      }
+    }, MY_RENTALS_POLL_INTERVAL_MS);
 
     return () => {
       window.removeEventListener("new_request", refresh);

@@ -22,7 +22,7 @@ const VerifyMfaLogin = () => {
       localStorage.setItem("username", res.data.username || res.data.email || email);
       localStorage.setItem("role", "USER");
       localStorage.removeItem("temp_mfa_email");
-      const profileData = await fetchProfile();
+      const profileData = await fetchProfile({ force: true });
       navigate(canAccessGeneralRoutes(profileData) ? "/" : "/profile");
     }
   };

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useProductStore from "../store/ProductStore";
 
+const REQUESTS_POLL_INTERVAL_MS = 30000;
+
 const MyRequests = () => {
   const { ownerRequests, fetchOwnerRequests, manageRequest, finalizeBooking } = useProductStore();
   const [penalties, setPenalties] = useState({});
@@ -15,7 +17,11 @@ const MyRequests = () => {
     window.addEventListener("realtime_update", refresh);
     window.addEventListener("new_notification", refresh);
 
-    const intervalId = setInterval(refresh, 6000);
+    const intervalId = setInterval(() => {
+      if (!document.hidden) {
+        refresh();
+      }
+    }, REQUESTS_POLL_INTERVAL_MS);
 
     return () => {
       window.removeEventListener("new_request", refresh);

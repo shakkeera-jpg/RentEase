@@ -12,7 +12,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-  const { profile, fetchProfile } = useProfileStore();
+  const { profile, fetchProfile, hydrated, loading: profileLoading } = useProfileStore();
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
@@ -30,10 +30,10 @@ const ProductDetail = () => {
   }
 };
   useEffect(() => {
-    if (isAuthenticated && !profile) {
+    if (isAuthenticated && !profile && !hydrated && !profileLoading) {
       fetchProfile();
     }
-  }, [isAuthenticated, profile, fetchProfile]);
+  }, [isAuthenticated, profile, hydrated, profileLoading, fetchProfile]);
 
   useEffect(() => {
     const fetchAsset = async () => {

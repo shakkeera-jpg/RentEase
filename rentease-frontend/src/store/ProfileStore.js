@@ -1,22 +1,42 @@
 import { create } from "zustand";
 import api from "../api/axios";
 
+let inflightProfileRequest = null;
+
 const useProfileStore = create((set, get) => ({
   profile: null,
   loading: false,
   hydrated: false,
   profilePhotoVersion: Date.now(),
 
-  fetchProfile: async () => {
-    set({ loading: true });
-    try {
-      const res = await api.get("profile/");
-      set({ profile: res.data, loading: false, hydrated: true });
-      return res.data;
-    } catch (err) {
-      set({ loading: false, hydrated: true });
-      return null;
+  fetchProfile: async ({ force = false } = {}) => {
+    const state = get();
+
+    if (!force && state.hydrated && state.profile) {
+      return state.profile;
     }
+
+    if (inflightProfileRequest) {
+      return inflightProfileRequest;
+    }
+
+    set({ loading: true });
+
+    inflightProfileRequest = api
+      .get("profile/")
+      .then((res) => {
+        set({ profile: res.data, loading: false, hydrated: true });
+        return res.data;
+      })
+      .catch(() => {
+        set({ loading: false, hydrated: true });
+        return null;
+      })
+      .finally(() => {
+        inflightProfileRequest = null;
+      });
+
+    return inflightProfileRequest;
   },
 
   updateBasicDetails: async (data) => {
@@ -69,7 +89,7 @@ const useProfileStore = create((set, get) => ({
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      await get().fetchProfile();
+      await get().fetchProfile({ force: true });
       return { success: true };
     } catch (err) {
       return { success: false, error: err.response?.data };

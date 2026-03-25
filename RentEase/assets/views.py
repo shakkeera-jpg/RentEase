@@ -3,8 +3,9 @@ import hashlib
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.core.cache import cache
+from django.utils import timezone
 from django.db.utils import OperationalError, ProgrammingError
 from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -62,6 +63,19 @@ def _db_not_ready():
     )
 
 
+def _active_booking_prefetch():
+    today = timezone.now().date()
+    return Prefetch(
+        "booking_set",
+        queryset=Booking.objects.filter(
+            start_date__lte=today,
+            end_date__gte=today,
+            status__in=["OWNER_PENDING", "APPROVED", "ACTIVE"],
+        ),
+        to_attr="active_bookings",
+    )
+
+
 class CategoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -96,7 +110,11 @@ class MyAssetAPIView(APIView):
         responses={200: AssetSerializer(many=True)}
     )
     def get(self, request):
-        assets = Asset.objects.filter(owner=request.user)
+        assets = (
+            Asset.objects.filter(owner=request.user)
+            .select_related("owner", "category", "city")
+            .prefetch_related("availability", _active_booking_prefetch())
+        )
         serializer = AssetSerializer(assets, many=True)
         return Response(serializer.data)
 
@@ -193,7 +211,12 @@ class AssetListAPIView(APIView):
         if cached is not None:
             return Response(cached)
 
-        assets = Asset.objects.filter(city=user.profile.panchayat).exclude(owner=user)
+        assets = (
+            Asset.objects.filter(city=user.profile.panchayat)
+            .exclude(owner=user)
+            .select_related("owner", "category", "city")
+            .prefetch_related("availability", _active_booking_prefetch())
+        )
         if search:
             assets = assets.filter(Q(title__icontains=search))
 

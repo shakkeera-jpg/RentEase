@@ -65,7 +65,7 @@ const Profile = () => {
     const payload = { ...basicData };
     if (profilePhoto) payload.profile_photo = profilePhoto;
     const res = await updateBasicDetails(payload);
-    if (res.success) await fetchProfile();
+    if (res.success) await fetchProfile({ force: true });
   };
 
   const handleFileSubmit = async (e) => {

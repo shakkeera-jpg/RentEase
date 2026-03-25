@@ -18,7 +18,7 @@ const Agreement = () => {
       localStorage.setItem("role", "USER");
       if (tempEmail) localStorage.setItem("username", tempEmail);
 
-      const profileData = await fetchProfile();
+      const profileData = await fetchProfile({ force: true });
 
       navigate(canAccessGeneralRoutes(profileData) ? "/" : "/profile");
     } else {

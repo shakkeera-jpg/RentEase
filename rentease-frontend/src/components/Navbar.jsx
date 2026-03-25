@@ -14,7 +14,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const unreadCount = useUnreadMessages();
   const { logout, isAuthenticated, user, trustScore } = useAuthStore();
-  const { profile, fetchProfile, profilePhotoVersion } = useProfileStore();
+  const { profile, fetchProfile, profilePhotoVersion, hydrated, loading } = useProfileStore();
   const userRole = localStorage.getItem("role");
   const storedName = localStorage.getItem("name");
   const displayName = profile?.name || user || storedName || "User";
@@ -33,10 +33,10 @@ const Navbar = () => {
           : null;
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hydrated && !loading) {
       fetchProfile();
     }
-  }, [isAuthenticated, fetchProfile]);
+  }, [isAuthenticated, hydrated, loading, fetchProfile]);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access");

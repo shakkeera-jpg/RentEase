@@ -3,6 +3,8 @@ import useProductStore from "../store/ProductStore";
 import api from "../api/axios";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 
+const BOOKINGS_POLL_INTERVAL_MS = 30000;
+
 const Bookings = () => {
   const { updateRenterStatus, cancelBooking } = useProductStore();
   const [rentals, setRentals] = useState([]);
@@ -29,7 +31,11 @@ const Bookings = () => {
     window.addEventListener("realtime_update", refresh);
     window.addEventListener("new_notification", refresh);
 
-    const intervalId = setInterval(refresh, 6000);
+    const intervalId = setInterval(() => {
+      if (!document.hidden) {
+        refresh();
+      }
+    }, BOOKINGS_POLL_INTERVAL_MS);
 
     return () => {
       window.removeEventListener("request_approved", refresh);

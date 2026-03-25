@@ -317,8 +317,10 @@ class MyRentalsView(APIView):
         responses={200: BookingSerializer(many=True)}
     )
     def get(self, request):
-        user_rentals = Booking.objects.filter(renter=request.user).order_by(
-            "-created_at"
+        user_rentals = (
+            Booking.objects.filter(renter=request.user)
+            .select_related("asset", "asset__owner")
+            .order_by("-created_at")
         )
         serializer = BookingSerializer(user_rentals, many=True)
         return Response(serializer.data)

@@ -63,7 +63,7 @@ const Login = () => {
           user: name || "User",
         });
 
-        const profileData = await fetchProfile();
+        const profileData = await fetchProfile({ force: true });
         if (typeof profileData?.trust_score === "number") {
           localStorage.setItem("trust_score", String(profileData.trust_score));
           useAuthStore.setState({ trustScore: profileData.trust_score });
@@ -127,7 +127,7 @@ const Login = () => {
           user: name || "User",
         });
 
-        const profileData = await fetchProfile();
+        const profileData = await fetchProfile({ force: true });
         if (typeof profileData?.trust_score === "number") {
           localStorage.setItem("trust_score", String(profileData.trust_score));
           useAuthStore.setState({ trustScore: profileData.trust_score });

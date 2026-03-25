@@ -6,21 +6,46 @@ import { resolveMediaUrl } from "../utils/mediaUrl";
 import useProfileStore from "../store/ProfileStore";
 import { canPerformVerifiedActions } from "../utils/profileStatus";
 
+const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+
+const loadRazorpayCheckout = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const existingScript = document.querySelector(`script[src="${RAZORPAY_SCRIPT_URL}"]`);
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(Boolean(window.Razorpay)), { once: true });
+      existingScript.addEventListener("error", () => resolve(false), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = RAZORPAY_SCRIPT_URL;
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.Razorpay));
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { createBookingAndPayment, verifyPayment } = useProductStore();
-  const { profile, fetchProfile } = useProfileStore();
+  const { profile, fetchProfile, hydrated, loading: profileLoading } = useProfileStore();
 
   const { asset } = location.state || {};
   const [dates, setDates] = useState({ start_date: "", end_date: "" });
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (!profile) {
+    if (!profile && !hydrated && !profileLoading) {
       fetchProfile();
     }
-  }, [profile, fetchProfile]);
+  }, [profile, hydrated, profileLoading, fetchProfile]);
 
   if (!asset) return <div className="p-20 text-center">Invalid session. <button onClick={() => navigate("/")}>Browse Products</button></div>;
   if (profile && !canPerformVerifiedActions(profile)) {
@@ -76,9 +101,25 @@ const Payment = () => {
       return alert("Please choose dates only within the owner's available rental period.");
     }
 
-    const res = await createBookingAndPayment(asset.id, dates);
+    if (!import.meta.env.VITE_RAZORPAY_KEY_ID) {
+      alert("Razorpay key is missing in the frontend environment.");
+      return;
+    }
 
-    if (res.success) {
+    setIsProcessing(true);
+
+    try {
+      const checkoutLoaded = await loadRazorpayCheckout();
+      if (!checkoutLoaded || !window.Razorpay) {
+        alert("Razorpay checkout failed to load. Please disable blockers and try again.");
+        return;
+      }
+
+      const res = await createBookingAndPayment(asset.id, dates);
+      if (!res.success) {
+        return;
+      }
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: res.orderData.amount,
@@ -102,12 +143,21 @@ const Payment = () => {
         modal: {
           ondismiss: function () {
             console.log("Checkout form closed");
+            setIsProcessing(false);
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", () => {
+        setIsProcessing(false);
+      });
       rzp.open();
+    } catch (error) {
+      console.error("Razorpay checkout failed to open", error);
+      alert("Unable to open Razorpay checkout right now. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -170,9 +220,9 @@ const Payment = () => {
           <div className="flex items-center justify-between border-t border-slate-200 pt-3 text-lg font-extrabold text-teal-700"><span>Total Payable</span><span>INR {grandTotal}</span></div>
         </div>
 
-        <button onClick={handleProcessPayment} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-200">
+        <button onClick={handleProcessPayment} disabled={isProcessing} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 disabled:cursor-not-allowed disabled:opacity-60">
           <CreditCard size={16} />
-          Verify & Pay Now
+          {isProcessing ? "Opening Razorpay..." : "Verify & Pay Now"}
         </button>
       </div>
 

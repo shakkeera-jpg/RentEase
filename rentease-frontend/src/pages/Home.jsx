@@ -50,7 +50,7 @@ const Home = () => {
         if (permission !== "granted") return;
 
         const fcmToken = await getToken(messaging, {
-          vapidKey: "BLPdeSng1cHGdE7iqDN-E0QM8zORR55i-wwx8aSuTTVn7-su2vyYQ5WvueN1cn2MpBWEeErFL7Xu6o-ByHDygiI",
+          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
         });
 
         if (!fcmToken) return;

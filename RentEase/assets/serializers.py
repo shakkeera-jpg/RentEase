@@ -45,15 +45,16 @@ class AssetSerializer(serializers.ModelSerializer):
         read_only_fields = ["city"]
 
     def get_is_available(self, obj):
+        if hasattr(obj, "active_bookings"):
+            return not bool(obj.active_bookings)
+
         today = timezone.now().date()
-        is_booked = Booking.objects.filter(
+        return not Booking.objects.filter(
             asset=obj,
             start_date__lte=today,
             end_date__gte=today,
             status__in=["OWNER_PENDING", "APPROVED", "ACTIVE"],
         ).exists()
-
-        return not is_booked
 
     def get_owner_details(self, obj):
         return {
