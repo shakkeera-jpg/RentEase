@@ -1,0 +1,177 @@
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  environment: production
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+imagePullSecrets: []
+
+web:
+  image:
+    repository: ""
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  containerPort: 8000
+  command: ["gunicorn"]
+  args: ["RentEase.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]
+  resources: {}
+
+celeryWorker:
+  image:
+    repository: ""
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  command: ["celery"]
+  args: ["-A", "RentEase", "worker", "--loglevel=info"]
+  resources: {}
+
+celeryBeat:
+  image:
+    repository: ""
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  command: ["celery"]
+  args: ["-A", "RentEase", "beat", "--loglevel=info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+  resources: {}
+
+aiService:
+  enabled: true
+  image:
+    repository: ""
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  containerPort: 8000
+  resources: {}
+
+frontend:
+  enabled: true
+  image:
+    repository: ""
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  containerPort: 80
+  resources: {}
+
+nginx:
+  image:
+    repository: "nginx"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  containerPort: 80
+  replicaCount: 1
+  resources: {}
+
+redis:
+  enabled: false
+  image:
+    repository: "redis"
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+  containerPort: 6379
+  resources: {}
+  host: ""
+  port: 6379
+
+postgres:
+  enabled: false
+  image:
+    repository: "postgres"
+    tag: "15"
+    pullPolicy: IfNotPresent
+  containerPort: 5432
+  resources: {}
+  host: ""
+  port: 5432
+
+qdrant:
+  enabled: true
+  image:
+    repository: "qdrant/qdrant"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  containerPort: 6333
+  resources: {}
+  storage:
+    enabled: true
+    size: 5Gi
+
+service:
+  web:
+    type: ClusterIP
+    port: 8000
+  aiService:
+    type: ClusterIP
+    port: 8000
+  frontend:
+    type: ClusterIP
+    port: 80
+  nginx:
+    type: LoadBalancer
+    port: 80
+  redis:
+    type: ClusterIP
+    port: 6379
+  qdrant:
+    type: ClusterIP
+    port: 6333
+
+ingress:
+  enabled: true
+  className: "alb"
+  annotations: {}
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+          service: nginx
+  tls: []
+
+config:
+  DEBUG: "False"
+  AI_SERVICE_TIMEOUT_SECONDS: "120"
+
+secrets:
+  existingSecret: ""
+  data:
+    SECRET_KEY: ""
+    POSTGRES_DB: ""
+    POSTGRES_USER: ""
+    POSTGRES_PASSWORD: ""
+    POSTGRES_HOST: ""
+    POSTGRES_PORT: "5432"
+    CELERY_BROKER_URL: ""
+    REDIS_CACHE_URL: ""
+    AI_SERVICE_URL: ""
+    GROQ_API_KEY: ""
+    GROQ_MODEL: "llama-3.3-70b-versatile"
+    GROQ_API_URL: "https://api.groq.com/openai/v1/chat/completions"
+    AWS_REGION: ""
+    AWS_STORAGE_BUCKET_NAME: ""
+    AWS_S3_REGION_NAME: ""
+    AWS_ACCESS_KEY_ID: ""
+    AWS_SECRET_ACCESS_KEY: ""
+    AWS_S3_FILE_OVERWRITE: "False"
+    AWS_QUERYSTRING_AUTH: "False"
+    NOTIFICATION_QUEUE_URL: ""
+    EMAIL_HOST: ""
+    EMAIL_PORT: "587"
+    EMAIL_USE_TLS: "True"
+    EMAIL_HOST_USER: ""
+    EMAIL_HOST_PASSWORD: ""
+    RAZORPAY_KEY_ID: ""
+    RAZORPAY_KEY_SECRET: ""
+    PLATFORM_COMMISSION: "0.10"
+    OWNER_APPROVAL_TIMEOUT_HOURS: "24"
+
+extraEnv: []

@@ -1,0 +1,18 @@
+{{- if .Values.aiService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rentease.fullname" . }}-ai
+  labels:
+    {{- include "rentease.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.aiService.type }}
+  selector:
+    {{- include "rentease.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ai
+  ports:
+    - port: {{ .Values.service.aiService.port }}
+      targetPort: {{ .Values.aiService.containerPort }}
+      protocol: TCP
+      name: http
+{{- end }}

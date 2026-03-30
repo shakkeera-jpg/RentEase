@@ -1,0 +1,76 @@
+global:
+  environment: local
+
+frontend:
+  enabled: false
+  image:
+    repository: "rentease/frontend"
+    tag: "local"
+    pullPolicy: Never
+
+web:
+  replicaCount: 1
+  image:
+    repository: "rentease/web"
+    tag: "local"
+    pullPolicy: Never
+
+celeryWorker:
+  replicaCount: 0
+  image:
+    repository: "rentease/web"
+    tag: "local"
+    pullPolicy: Never
+
+celeryBeat:
+  replicaCount: 0
+  image:
+    repository: "rentease/web"
+    tag: "local"
+    pullPolicy: Never
+
+aiService:
+  enabled: false
+  image:
+    repository: "rentease/ai"
+    tag: "local"
+    pullPolicy: Never
+
+nginx:
+  image:
+    repository: "nginx"
+    tag: "latest"
+
+redis:
+  enabled: true
+
+postgres:
+  enabled: true
+
+qdrant:
+  enabled: false
+
+service:
+  nginx:
+    type: NodePort
+    port: 80
+
+ingress:
+  enabled: false
+
+config:
+  DEBUG: "True"
+  AI_SERVICE_TIMEOUT_SECONDS: "120"
+
+secrets:
+  existingSecret: ""
+  data:
+    SECRET_KEY: "local-dev-secret-key"
+    POSTGRES_DB: "rentease_db"
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "123456"
+    POSTGRES_HOST: "rentease-rentease-postgres"
+    POSTGRES_PORT: "5432"
+    CELERY_BROKER_URL: "redis://rentease-rentease-redis:6379/0"
+    REDIS_CACHE_URL: "redis://rentease-rentease-redis:6379/1"
+    AI_SERVICE_URL: ""

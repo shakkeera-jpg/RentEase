@@ -175,8 +175,8 @@ const ChatList = () => {
 
   const loadChats = async () => {
     try {
-      const res = await getConversations();
-      const normalized = normalizeConversations(res.data);
+      const conversationsRes = await getConversations();
+      const normalized = normalizeConversations(conversationsRes.data);
       setConversations(normalized);
       // Best-effort: if backend doesn't provide last_message, derive it.
       hydrateMissingLastMessages(normalized);

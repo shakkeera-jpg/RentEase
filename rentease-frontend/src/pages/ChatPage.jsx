@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { getConversationDetails, getMessages, markConversationRead, sendMessage } from "../api/chatApi";
+import { getConversationDetails, getMessages, markConversationRead, sendAssistantMessage, sendMessage } from "../api/chatApi";
 import { MapPin, Send } from "lucide-react";
+
+const ASSISTANT_CONVERSATION_ID = "assistant";
+const ASSISTANT_STORAGE_KEY = "assistantConversationMessages";
+const ASSISTANT_WELCOME_MESSAGE = {
+  id: "assistant-welcome",
+  sender: "RentEase Assistant",
+  text: "Hi, I can help with ID verification, booking steps, and payment issues. Ask me anything about using RentEase.",
+  created_at: new Date().toISOString(),
+};
 
 function ChatPage() {
   const { conversationId } = useParams();
@@ -10,6 +19,7 @@ function ChatPage() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [otherUserName, setOtherUserName] = useState(location?.state?.otherUserName || "");
+  const isAssistantConversation = String(conversationId) === ASSISTANT_CONVERSATION_ID;
 
   const currentUser = localStorage.getItem("username") || localStorage.getItem("name");
 
@@ -36,6 +46,11 @@ function ChatPage() {
   };
 
   const loadConversationMeta = async () => {
+    if (isAssistantConversation) {
+      setOtherUserName("RentEase Assistant");
+      return;
+    }
+
     // Prefer navigation state; fall back to API lookup.
     const fromState = location?.state?.otherUserName;
     if (fromState) {
@@ -53,6 +68,10 @@ function ChatPage() {
 
 
   const sendLocation = () => {
+    if (isAssistantConversation) {
+      alert("Location sharing is not available in assistant chat.");
+      return;
+    }
 
     if (!navigator.geolocation) {
       alert("Geolocation not supported");
@@ -80,6 +99,20 @@ function ChatPage() {
   };
 
   const loadMessages = async () => {
+    if (isAssistantConversation) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(ASSISTANT_STORAGE_KEY) || "[]");
+        if (Array.isArray(stored) && stored.length > 0) {
+          setMessages(stored);
+        } else {
+          setMessages([ASSISTANT_WELCOME_MESSAGE]);
+        }
+      } catch {
+        setMessages([ASSISTANT_WELCOME_MESSAGE]);
+      }
+      return;
+    }
+
     try {
       const res = await getMessages(conversationId);
       setMessages(res.data);
@@ -89,6 +122,10 @@ function ChatPage() {
   };
 
   const markRead = async () => {
+    if (isAssistantConversation) {
+      return;
+    }
+
     try {
       const mergedIdsFromState = location?.state?.mergedConversationIds;
       let ids =
@@ -167,14 +204,45 @@ function ChatPage() {
       id: `local-${Date.now()}`,
       sender: currentUser,
       text: text,
+      created_at: new Date().toISOString(),
     };
 
     try {
       setSending(true);
       setMessages((prev) => [...prev, optimistic]);
+      setText("");
+
+      if (isAssistantConversation) {
+        const existing = (() => {
+          try {
+            const raw = JSON.parse(localStorage.getItem(ASSISTANT_STORAGE_KEY) || "[]");
+            return Array.isArray(raw) ? raw : [];
+          } catch {
+            return [];
+          }
+        })();
+
+        const userMessages = [...existing, optimistic];
+        localStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(userMessages));
+
+        const res = await sendAssistantMessage(optimistic.text);
+        const assistantMessage = {
+          id: `assistant-${Date.now()}`,
+          sender: "RentEase Assistant",
+          text: res.data.reply,
+          created_at: new Date().toISOString(),
+        };
+
+        const fullThread = [...userMessages, assistantMessage];
+        localStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(fullThread));
+        setMessages(fullThread);
+        window.dispatchEvent(new Event("chat_message"));
+        window.dispatchEvent(new Event("realtime_update"));
+        return;
+      }
+
       await sendMessage(conversationId, text);
 
-      setText("");
       loadMessages();
       window.dispatchEvent(new Event("chat_message"));
     } catch (error) {
@@ -248,14 +316,16 @@ function ChatPage() {
           {sending ? "Sending..." : "Send"}
         </button>
 
-        <button
-          onClick={sendLocation}
-          type="button"
-          className="inline-flex items-center gap-2 rounded-xl border border-teal-600 bg-white px-5 py-3 text-sm font-semibold text-teal-700 transition-all hover:bg-teal-50 active:scale-[0.98]"
-        >
-          <MapPin size={15} />
-          Send Location
-        </button>
+        {!isAssistantConversation && (
+          <button
+            onClick={sendLocation}
+            type="button"
+            className="inline-flex items-center gap-2 rounded-xl border border-teal-600 bg-white px-5 py-3 text-sm font-semibold text-teal-700 transition-all hover:bg-teal-50 active:scale-[0.98]"
+          >
+            <MapPin size={15} />
+            Send Location
+          </button>
+        )}
 
       </div>
     </div>

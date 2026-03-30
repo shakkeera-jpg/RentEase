@@ -26,6 +26,12 @@ export const getMessages = (conversationId) =>
 export const getConversations = () =>
   api.get("conversations/");
 
+export const getAssistantConversation = () =>
+  api.get("assistant/");
+
+export const sendAssistantMessage = (text) =>
+  api.post("assistant/send/", { text });
+
 // Fetch a single conversation if the backend supports it; otherwise fall back to list lookup.
 export const getConversationDetails = async (conversationId) => {
   try {

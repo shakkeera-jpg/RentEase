@@ -27,6 +27,7 @@ import AdminLayout from "../components/AdminLayout";
 import ChatPage from "../pages/ChatPage";
 import ChatList from "../pages/ChatList";
 import ProfileCompletionGate from "../components/ProfileCompletionGate";
+import ChatWidget from "../components/ChatWidget";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuthStore();
@@ -54,6 +55,7 @@ const AppRoutes = () => {
     !isInternalAdminRoute;
 
   return (
+    <>
     <Routes>
       <Route
         path="/login"
@@ -110,6 +112,8 @@ const AppRoutes = () => {
         }
       />
     </Routes>
+    <ChatWidget />
+    </>
   );
 };
 

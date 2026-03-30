@@ -5,6 +5,8 @@ services:
     image: postgres:15
     container_name: postgres_db
     restart: always
+    env_file:
+      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-}
       POSTGRES_USER: ${POSTGRES_USER:-}
@@ -22,6 +24,8 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    env_file:
+      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-}
       POSTGRES_USER: ${POSTGRES_USER:-}
@@ -41,6 +45,9 @@ services:
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}
       AI_SERVICE_URL: ${AI_SERVICE_URL:-}
       AI_SERVICE_TIMEOUT_SECONDS: "30"
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GROQ_API_URL: ${GROQ_API_URL:-https://api.groq.com/openai/v1/chat/completions}
       AWS_REGION: ${AWS_REGION:-}
       NOTIFICATION_QUEUE_URL: ${NOTIFICATION_QUEUE_URL:-}
       AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME:-}
@@ -70,6 +77,8 @@ services:
     depends_on:
       - db
       - redis
+    env_file:
+      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-}
       POSTGRES_USER: ${POSTGRES_USER:-}
@@ -109,6 +118,8 @@ services:
     depends_on:
       - db
       - redis
+    env_file:
+      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-}
       POSTGRES_USER: ${POSTGRES_USER:-}
@@ -142,9 +153,17 @@ services:
     container_name: ai_service
     ports:
       - "8001:8000"
+    env_file:
+      - ./.env
     environment:
       HF_TOKEN: ${HF_TOKEN:-}
       HF_HOME: /cache/huggingface
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GROQ_API_URL: ${GROQ_API_URL:-https://api.groq.com/openai/v1/chat/completions}
+      GROK_API_KEY: ${GROK_API_KEY:-}
+      GROK_MODEL: ${GROK_MODEL:-}
+      GROK_API_URL: ${GROK_API_URL:-}
     volumes:
       - hf_cache:/cache/huggingface
 

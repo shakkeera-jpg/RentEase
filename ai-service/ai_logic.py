@@ -122,3 +122,23 @@ def calculate_score(data):
         score -= 100
 
     return max(0, min(score, 1000))
+
+
+def search_vector(user_id, query_embedding, limit=5):
+    """
+    Search Qdrant for relevant history for a specific user.
+    """
+    from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+    search_result = client.search(
+        collection_name="user_behavior",
+        query_vector=query_embedding,
+        query_filter=Filter(
+            must=[
+                FieldCondition(key="payload.user_id", match=MatchValue(value=user_id))
+            ]
+        ),
+        limit=limit,
+    )
+    
+    return [hit.payload for hit in search_result]

@@ -14,6 +14,7 @@ import json
 import boto3
 from assets.models import Asset
 from rest_framework import serializers
+from utils.assistant_service import send_message_to_assistant
 
 
 class SendMessageRequestSerializer(serializers.Serializer):
@@ -21,6 +22,10 @@ class SendMessageRequestSerializer(serializers.Serializer):
     text = serializers.CharField()
     latitude = serializers.FloatField(required=False, allow_null=True)
     longitude = serializers.FloatField(required=False, allow_null=True)
+
+
+class AssistantMessageRequestSerializer(serializers.Serializer):
+    text = serializers.CharField()
 
 
 class StartConversationView(APIView):
@@ -166,3 +171,47 @@ class UnreadMessageCount(APIView):
         )
 
         return Response({"count": count})
+
+
+class AssistantConversationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Get RentEase Assistant conversation metadata",
+        responses={200: openapi.Response("Assistant conversation metadata")}
+    )
+    def get(self, request):
+        return Response(
+            {
+                "conversation_id": "assistant",
+                "other_user_name": "RentEase Assistant",
+                "last_message": "Ask me about verification, booking flow, or payment issues.",
+                "unread_count": 0,
+            }
+        )
+
+
+class AssistantMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Send a message to RentEase Assistant",
+        request_body=AssistantMessageRequestSerializer,
+        responses={200: openapi.Response("Assistant reply")}
+    )
+    def post(self, request):
+        serializer = AssistantMessageRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        result = send_message_to_assistant(
+            user_id=request.user.id,
+            message=serializer.validated_data["text"],
+        )
+
+        return Response(
+            {
+                "conversation_id": "assistant",
+                "reply": result.get("reply", ""),
+                "intent": result.get("intent", "support_question"),
+            }
+        )

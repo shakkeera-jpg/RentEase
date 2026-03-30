@@ -5,10 +5,14 @@ from .views import (
     UserConversationsView,
     StartConversationView,
     UnreadMessageCount,
+    AssistantConversationView,
+    AssistantMessageView,
 )
 
 urlpatterns = [
     path("start/<int:asset_id>/", StartConversationView.as_view()),
+    path("assistant/", AssistantConversationView.as_view(), name="assistant-conversation"),
+    path("assistant/send/", AssistantMessageView.as_view(), name="assistant-send"),
     path("send/", SendMessageView.as_view(), name="send-message"),
     path(
         "messages/<int:conversation_id>/",

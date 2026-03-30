@@ -1,0 +1,66 @@
+global:
+  environment: production
+
+web:
+  image:
+    repository: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/rentease-web"
+    tag: "latest"
+
+celeryWorker:
+  image:
+    repository: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/rentease-web"
+    tag: "latest"
+
+celeryBeat:
+  image:
+    repository: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/rentease-web"
+    tag: "latest"
+
+aiService:
+  image:
+    repository: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/rentease-ai"
+    tag: "latest"
+
+frontend:
+  image:
+    repository: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/rentease-frontend"
+    tag: "latest"
+
+nginx:
+  image:
+    repository: "nginx"
+    tag: "latest"
+
+redis:
+  enabled: false
+
+postgres:
+  enabled: false
+
+service:
+  nginx:
+    type: LoadBalancer
+    port: 80
+
+ingress:
+  enabled: true
+  className: "alb"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+          service: nginx
+
+secrets:
+  existingSecret: ""
+  data:
+    POSTGRES_HOST: "<RDS_ENDPOINT>"
+    POSTGRES_PORT: "5432"
+    CELERY_BROKER_URL: "redis://<ELASTICACHE_ENDPOINT>:6379/0"
+    REDIS_CACHE_URL: "redis://<ELASTICACHE_ENDPOINT>:6379/1"
+    AI_SERVICE_URL: "http://rentease-rentease-ai:8000"
