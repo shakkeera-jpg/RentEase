@@ -1,0 +1,64 @@
+# Replace <ACCOUNT> and <REGION> with your AWS details.
+# Example:
+# repository: "123456789012.dkr.ecr.ap-south-1.amazonaws.com/rentease-app"
+
+imagePullSecrets:
+  - name: ecr-secret
+
+web:
+  image:
+    repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
+    tag: "latest"
+    pullPolicy: Always
+  replicaCount: 1
+
+celeryWorker:
+  image:
+    repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
+    tag: "latest"
+    pullPolicy: Always
+  replicaCount: 0
+
+celeryBeat:
+  image:
+    repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
+    tag: "latest"
+    pullPolicy: Always
+  replicaCount: 0
+
+aiService:
+  enabled: false
+
+frontend:
+  enabled: false
+
+redis:
+  enabled: true
+
+postgres:
+  enabled: true
+
+qdrant:
+  enabled: false
+
+service:
+  nginx:
+    type: NodePort
+    port: 80
+
+ingress:
+  enabled: false
+
+config:
+  DEBUG: "False"
+
+secrets:
+  data:
+    SECRET_KEY: "django-insecure-4$$w9b=1e832!t%1clfd)04o%i1y)r(hl1po2h_@e1$$)$$)ot4n9"
+    POSTGRES_DB: "rentease"
+    POSTGRES_USER: "rentease"
+    POSTGRES_PASSWORD: "123456"
+    POSTGRES_HOST: "rentease-rentease-postgres"
+    POSTGRES_PORT: "5432"
+    CELERY_BROKER_URL: "redis://rentease-rentease-redis:6379/0"
+    REDIS_CACHE_URL: "redis://rentease-rentease-redis:6379/1"
