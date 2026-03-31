@@ -8,21 +8,21 @@ imagePullSecrets:
 web:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "latest"
+    tag: "20260331-1"
     pullPolicy: Always
   replicaCount: 1
 
 celeryWorker:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "latest"
+    tag: "20260331-1"
     pullPolicy: Always
   replicaCount: 0
 
 celeryBeat:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "latest"
+    tag: "20260331-1"
     pullPolicy: Always
   replicaCount: 0
 
