@@ -17,6 +17,10 @@ spec:
         app.kubernetes.io/component: celery-beat
     spec:
       serviceAccountName: {{ default (include "rentease.fullname" .) .Values.serviceAccount.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: celery-beat
           image: "{{ .Values.celeryBeat.image.repository }}:{{ .Values.celeryBeat.image.tag }}"
