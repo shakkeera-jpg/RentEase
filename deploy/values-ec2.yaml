@@ -11,6 +11,9 @@ web:
     tag: "20260331-1"
     pullPolicy: Always
   replicaCount: 1
+  command: ["/bin/sh", "-c"]
+  args:
+    - "python manage.py collectstatic --noinput && gunicorn RentEase.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
 
 celeryWorker:
   image:
