@@ -36,6 +36,10 @@ fi
 echo "Deploying Helm chart..."
 helm upgrade --install "$RELEASE_NAME" "$CHART_PATH" -n "$NAMESPACE" -f "$VALUES_FILE" --create-namespace
 
+echo "Restarting deployments to pull latest images and refresh config..."
+sudo k3s kubectl -n "$NAMESPACE" rollout restart deploy/"${RELEASE_NAME}-rentease-web"
+sudo k3s kubectl -n "$NAMESPACE" rollout restart deploy/"${RELEASE_NAME}-rentease-nginx"
+
 echo "Waiting for web deployment..."
 sudo k3s kubectl -n "$NAMESPACE" rollout status deploy/"${RELEASE_NAME}-rentease-web"
 

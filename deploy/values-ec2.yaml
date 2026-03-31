@@ -53,12 +53,9 @@ config:
   DEBUG: "False"
 
 secrets:
-  data:
-    SECRET_KEY: "django-insecure-4$$w9b=1e832!t%1clfd)04o%i1y)r(hl1po2h_@e1$$)$$)ot4n9"
-    POSTGRES_DB: "rentease"
-    POSTGRES_USER: "rentease"
-    POSTGRES_PASSWORD: "123456"
-    POSTGRES_HOST: "rentease-rentease-postgres"
-    POSTGRES_PORT: "5432"
-    CELERY_BROKER_URL: "redis://rentease-rentease-redis:6379/0"
-    REDIS_CACHE_URL: "redis://rentease-rentease-redis:6379/1"
+  existingSecret: "rentease-secret"
+  data: {}
+
+extraEnv:
+  - name: STATICFILES_STORAGE
+    value: "whitenoise.storage.CompressedStaticFilesStorage"
