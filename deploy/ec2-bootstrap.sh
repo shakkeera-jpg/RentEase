@@ -42,5 +42,8 @@ sudo k3s kubectl -n "$NAMESPACE" rollout status deploy/"${RELEASE_NAME}-rentease
 echo "Running migrations..."
 sudo k3s kubectl -n "$NAMESPACE" exec deploy/"${RELEASE_NAME}-rentease-web" -- python manage.py migrate --noinput
 
+echo "Collecting static files..."
+sudo k3s kubectl -n "$NAMESPACE" exec deploy/"${RELEASE_NAME}-rentease-web" -- python manage.py collectstatic --noinput
+
 echo "Services:"
 sudo k3s kubectl -n "$NAMESPACE" get svc
