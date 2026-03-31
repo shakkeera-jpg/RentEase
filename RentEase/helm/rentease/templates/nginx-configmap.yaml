@@ -29,8 +29,12 @@ data:
             proxy_pass http://{{ include "rentease.fullname" . }}-frontend:{{ .Values.service.frontend.port }};
         }
 {{- else }}
+        location = / {
+            return 302 /swagger/;
+        }
+
         location / {
-            return 404;
+            proxy_pass http://{{ include "rentease.fullname" . }}-web:{{ .Values.service.web.port }};
         }
 {{- end }}
 
