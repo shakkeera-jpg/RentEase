@@ -24,10 +24,12 @@ aws @profileArg ecr get-login-password --region $AwsRegion `
   "$AwsAccountId.dkr.ecr.$AwsRegion.amazonaws.com"
 
 Write-Host "Building image..."
-docker build -t "$EcrRepo:$ImageTag" $DockerfilePath
+$localImage = "${EcrRepo}:${ImageTag}"
+$remoteImage = "${AwsAccountId}.dkr.ecr.${AwsRegion}.amazonaws.com/${EcrRepo}:${ImageTag}"
+docker build -t $localImage $DockerfilePath
 
 Write-Host "Tagging + pushing to ECR..."
-docker tag "$EcrRepo:$ImageTag" "$AwsAccountId.dkr.ecr.$AwsRegion.amazonaws.com/$EcrRepo:$ImageTag"
-docker push "$AwsAccountId.dkr.ecr.$AwsRegion.amazonaws.com/$EcrRepo:$ImageTag"
+docker tag $localImage $remoteImage
+docker push $remoteImage
 
 Write-Host "Done."
