@@ -66,3 +66,7 @@ extraEnv:
     value: "https://rentease-store.duckdns.org"
   - name: SERVE_MEDIA
     value: "True"
+  - name: ALLOWED_HOSTS
+    value: "rentease-store.duckdns.org,13.62.119.212"
+  - name: SWAGGER_DEFAULT_URL
+    value: "https://rentease-store.duckdns.org"

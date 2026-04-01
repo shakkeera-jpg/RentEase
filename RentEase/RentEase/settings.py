@@ -26,7 +26,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.environ.get("DEBUG") == "True"
 
-ALLOWED_HOSTS = ["*"]
+_allowed_hosts = os.environ.get("ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.strip()]
+
+# Trust reverse proxy headers for HTTPS (Caddy/Nginx).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 
 # Application definition
@@ -109,6 +114,9 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     },
 }
+_swagger_default_url = os.environ.get("SWAGGER_DEFAULT_URL")
+if _swagger_default_url:
+    SWAGGER_SETTINGS["DEFAULT_API_URL"] = _swagger_default_url
 
 
 # Database
