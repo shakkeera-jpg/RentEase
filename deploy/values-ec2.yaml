@@ -64,3 +64,5 @@ extraEnv:
     value: "whitenoise.storage.CompressedStaticFilesStorage"
   - name: CSRF_TRUSTED_ORIGINS
     value: "http://13.62.119.212:30423"
+  - name: SERVE_MEDIA
+    value: "True"

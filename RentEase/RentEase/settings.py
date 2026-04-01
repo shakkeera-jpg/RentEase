@@ -260,6 +260,9 @@ else:
     MEDIA_URL = "/verification_docs/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "verification_docs")
 
+# Serve media via Django when using local filesystem storage.
+SERVE_MEDIA = os.environ.get("SERVE_MEDIA", "False") == "True"
+
 AWS_REGION = os.environ.get("AWS_S3_REGION_NAME")
 NOTIFICATION_QUEUE_URL = os.environ.get("NOTIFICATION_QUEUE_URL")
 
