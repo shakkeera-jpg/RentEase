@@ -65,5 +65,12 @@ urlpatterns = [
     path("api/", include("notifications.urls")),
     path("api/", include("chat.urls")),
 ]
-if settings.DEBUG or getattr(settings, "SERVE_MEDIA", False):
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+elif getattr(settings, "SERVE_MEDIA", False):
+    # Allow serving media in non-debug environments when explicitly enabled.
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
+        insecure=True,
+    )
