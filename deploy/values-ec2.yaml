@@ -8,7 +8,7 @@ imagePullSecrets:
 web:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "20260401-4"
+    tag: "20260401-5"
     pullPolicy: Always
   replicaCount: 1
   command: ["/bin/sh", "-c"]
@@ -18,14 +18,14 @@ web:
 celeryWorker:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "20260401-4"
+    tag: "20260401-5"
     pullPolicy: Always
   replicaCount: 1
 
 celeryBeat:
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-app"
-    tag: "20260401-4"
+    tag: "20260401-5"
     pullPolicy: Always
   replicaCount: 0
 
