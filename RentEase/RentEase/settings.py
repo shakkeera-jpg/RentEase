@@ -178,6 +178,14 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
+# Allow specific origins for CSRF validation (comma-separated).
+_csrf_trusted_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in _csrf_trusted_origins.split(",")
+    if origin.strip()
+]
+
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
