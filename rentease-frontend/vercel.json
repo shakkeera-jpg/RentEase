@@ -2,7 +2,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "http://13.62.119.212:30423/api/$1"
+      "destination": "https://rentease-store.duckdns.org/api/$1"
+    },
+    {
+      "source": "/verification_docs/(.*)",
+      "destination": "https://rentease-store.duckdns.org/verification_docs/$1"
     }
   ]
 }
