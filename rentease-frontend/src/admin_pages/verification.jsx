@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import useAdminStore from "../store/AdminStore";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const Verification = () => {
   const { pendingList, fetchPending, processVerification, loading } = useAdminStore();
@@ -11,9 +12,10 @@ const Verification = () => {
   if (loading) return <p className="text-sm font-semibold text-slate-500">Loading verifications...</p>;
 
   const handleViewDocument = (docUrl) => {
-    const baseUrl = "http://127.0.0.1:8000";
-    const finalUrl = docUrl.startsWith("http") ? docUrl : `${baseUrl}${docUrl.startsWith("/") ? "" : "/"}${docUrl}`;
-    window.open(finalUrl, "_blank");
+    const finalUrl = resolveMediaUrl(docUrl);
+    if (finalUrl) {
+      window.open(finalUrl, "_blank");
+    }
   };
 
   return (

@@ -1,4 +1,14 @@
 const getMediaBaseUrl = () => {
+  const envBase = import.meta?.env?.VITE_MEDIA_BASE_URL;
+  if (envBase) {
+    return envBase.replace(/\/$/, "");
+  }
+
+  const apiBase = import.meta?.env?.VITE_API_BASE_URL;
+  if (apiBase && !apiBase.startsWith("/")) {
+    return apiBase.replace(/\/api\/?$/, "");
+  }
+
   if (typeof window !== "undefined" && window.location?.origin) {
     return window.location.origin;
   }
