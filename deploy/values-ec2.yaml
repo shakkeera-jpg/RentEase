@@ -63,6 +63,6 @@ extraEnv:
   - name: STATICFILES_STORAGE
     value: "whitenoise.storage.CompressedStaticFilesStorage"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://13.62.119.212:30423"
+    value: "https://rentease-store.duckdns.org"
   - name: SERVE_MEDIA
     value: "True"
