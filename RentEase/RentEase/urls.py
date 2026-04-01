@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView
+from django.views.static import serve as static_serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -74,3 +75,11 @@ elif getattr(settings, "SERVE_MEDIA", False):
         document_root=settings.MEDIA_ROOT,
         insecure=True,
     )
+    # Ensure media URLs are always routed, even if static() isn't picked up.
+    urlpatterns += [
+        re_path(
+            r"^verification_docs/(?P<path>.*)$",
+            static_serve,
+            {"document_root": settings.MEDIA_ROOT},
+        )
+    ]
