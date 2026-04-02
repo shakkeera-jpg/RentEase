@@ -133,7 +133,7 @@ By default the AI service connects to the local Qdrant container (`qdrant:6333`)
 - `RentEase/` Django backend, Docker Compose, Nginx, Helm chart
 - `rentease-frontend/` React/Vite frontend
 - `ai-service/` FastAPI AI service
-- `deploy/` AWS EC2 + K3s + ECR deployment scripts
+- `deploy/` AWS EC2 + K3s + ECR deployment script
 
 **Local Development**
 
