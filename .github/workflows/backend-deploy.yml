@@ -1,0 +1,70 @@
+name: Backend Build & Deploy
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "RentEase/**"
+      - "deploy/**"
+      - "requirements.txt"
+      - ".github/workflows/backend-deploy.yml"
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  ECR_REPO: ${{ secrets.ECR_REPO }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image tag
+        id: meta
+        run: echo "image_tag=$(date +%Y%m%d)-${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        run: |
+          IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+          TAG="${{ steps.meta.outputs.image_tag }}"
+          docker build -t "${IMAGE}:${TAG}" RentEase
+          docker push "${IMAGE}:${TAG}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER || 'ubuntu' }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/RentEase
+            git pull --ff-only
+            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            export AWS_REGION="${AWS_REGION}"
+            export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
+            export IMAGE_TAG="${{ needs.build.outputs.image_tag }}"
+            export CHART_PATH=~/RentEase/RentEase/helm/rentease
+            export VALUES_FILE=~/RentEase/deploy/values-ec2.yaml
+            export ENV_FILE=~/RentEase/RentEase/.env
+            bash ~/RentEase/deploy/ec2-bootstrap.sh
