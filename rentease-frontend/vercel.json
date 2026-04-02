@@ -7,6 +7,10 @@
     {
       "source": "/verification_docs/(.*)",
       "destination": "https://rentease-store.duckdns.org/verification_docs/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

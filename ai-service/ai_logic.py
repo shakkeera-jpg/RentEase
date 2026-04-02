@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from sentence_transformers import SentenceTransformer
@@ -7,8 +8,16 @@ from qdrant_client.models import PointStruct, Distance, VectorParams
 # Load embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Connect to Qdrant container
-client = QdrantClient(host="qdrant", port=6333)
+# Connect to Qdrant (cloud or local)
+_qdrant_url = os.getenv("QDRANT_URL", "").strip()
+_qdrant_api_key = os.getenv("QDRANT_API_KEY", "").strip() or None
+
+if _qdrant_url:
+    client = QdrantClient(url=_qdrant_url, api_key=_qdrant_api_key)
+else:
+    _qdrant_host = os.getenv("QDRANT_HOST", "qdrant").strip()
+    _qdrant_port = int(os.getenv("QDRANT_PORT", "6333"))
+    client = QdrantClient(host=_qdrant_host, port=_qdrant_port)
 
 def _normalize_point_id(transaction_id):
     """

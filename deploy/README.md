@@ -21,6 +21,7 @@ Step-by-step:
    - SSH to EC2
    - Copy this repo to EC2 (git clone or scp)
    - Edit `deploy/values-ec2.yaml` with your real values
+   - Ensure backend env vars exist at `RentEase/.env` (or set `ENV_FILE` to a custom path)
    - Run: `bash deploy/ec2-bootstrap.sh`
 
 3) Open the app:
@@ -29,6 +30,8 @@ Step-by-step:
    - Open: http://EC2_PUBLIC_IP:NODEPORT
 
 Notes:
+- `deploy/ec2-bootstrap.sh` now creates/updates the app secret (`APP_SECRET_NAME`, default: `rentease-secret`)
+  from the env file (`ENV_FILE`, default: `RentEase/.env`) so Razorpay keys are injected automatically.
 - If you want Celery, set `celeryWorker.replicaCount` and `celeryBeat.replicaCount` to 1.
 - If you want Qdrant, set `qdrant.enabled: true`.
 - For free tier stability, disable local sentence-transformers and use Gemini/Groq.

@@ -36,10 +36,10 @@ frontend:
   enabled: false
 
 redis:
-  enabled: true
+  enabled: false
 
 postgres:
-  enabled: true
+  enabled: false
 
 qdrant:
   enabled: false

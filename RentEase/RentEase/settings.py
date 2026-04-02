@@ -33,6 +33,31 @@ ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.stri
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.celery import CeleryIntegration
+        from sentry_sdk.integrations.django import DjangoIntegration
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration(), CeleryIntegration()],
+            environment=os.environ.get(
+                "SENTRY_ENVIRONMENT",
+                "development" if DEBUG else "production",
+            ),
+            traces_sample_rate=float(
+                os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0")
+            ),
+            send_default_pii=os.environ.get("SENTRY_SEND_PII", "False").lower()
+            == "true",
+            release=os.environ.get("SENTRY_RELEASE"),
+        )
+    except Exception:
+        # Don't block app boot if Sentry isn't installed yet.
+        pass
+
 
 # Application definition
 
