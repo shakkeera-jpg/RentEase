@@ -61,7 +61,7 @@ const Navbar = () => {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 text-white shadow-md shadow-teal-200">
             R
           </span>
-          <span className="text-lg font-extrabold tracking-tight text-slate-900">REUSE & RETURN</span>
+          <span className="text-lg font-extrabold tracking-tight text-slate-900">RentEase</span>
         </Link>
 
         <div className="flex items-center gap-2 md:gap-3">

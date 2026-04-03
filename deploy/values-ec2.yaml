@@ -30,7 +30,12 @@ celeryBeat:
   replicaCount: 0
 
 aiService:
-  enabled: false
+  enabled: true
+  image:
+    repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-ai"
+    tag: "20260402-1"
+    pullPolicy: Always
+  replicaCount: 1
 
 frontend:
   enabled: false
@@ -70,3 +75,5 @@ extraEnv:
     value: "rentease-store.duckdns.org,13.62.119.212"
   - name: SWAGGER_DEFAULT_URL
     value: "https://rentease-store.duckdns.org"
+  - name: AI_SERVICE_URL
+    value: "http://rentease-rentease-ai:8000"

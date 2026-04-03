@@ -29,7 +29,7 @@ const Sidebar = () => {
       <div className="glass rounded-2xl p-5">
         <Link to="/" className="mb-6 flex items-center gap-2 no-underline">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 text-sm font-bold text-white">R</span>
-          <span className="text-sm font-extrabold tracking-tight text-slate-900">REUSE & RETURN</span>
+          <span className="text-sm font-extrabold tracking-tight text-slate-900">RentEase</span>
         </Link>
 
         <nav className="flex flex-col gap-2">
