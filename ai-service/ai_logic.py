@@ -1,12 +1,10 @@
+import hashlib
 import os
+import random
 import uuid
 
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, Distance, VectorParams
-
-# Load embedding model
-model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Connect to Qdrant (cloud or local)
 _qdrant_url = os.getenv("QDRANT_URL", "").strip()
@@ -68,9 +66,12 @@ def create_embedding(data):
 
     text = str(data)
 
-    embedding = model.encode(text)
-
-    return embedding.tolist()
+    # Lightweight, deterministic embedding to keep the AI image small.
+    # This avoids large ML dependencies (torch/transformers) while still
+    # producing a stable vector for Qdrant storage/search.
+    seed_hex = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    rng = random.Random(int(seed_hex, 16))
+    return [rng.random() for _ in range(384)]
 
 
 def store_vector(user_id, transaction_id, embedding):

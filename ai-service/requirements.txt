@@ -1,11 +1,4 @@
-﻿fastapi
+fastapi
 uvicorn
-sentence-transformers
 qdrant-client
-numpy
-torch
-transformers
-scikit-learn
-scipy
-tqdm
 requests

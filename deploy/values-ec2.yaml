@@ -33,7 +33,7 @@ aiService:
   enabled: true
   image:
     repository: "677060981954.dkr.ecr.eu-north-1.amazonaws.com/rentease-ai"
-    tag: "20260402-1"
+    tag: "20260403-1"
     pullPolicy: Always
   replicaCount: 1
 
