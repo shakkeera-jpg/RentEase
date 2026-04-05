@@ -1,8 +1,29 @@
 let socket = null;
+let reconnectTimer = null;
+let lastConnectParam = null;
 
-export const connectSocket = (userId) => {
+const decodeJwtPayload = (token) => {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(normalized.padEnd(normalized.length + (4 - (normalized.length % 4 || 4)) % 4, "="));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};
+
+export const connectSocket = (userIdOrToken) => {
+  lastConnectParam = userIdOrToken;
   if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
     return;
+  }
+
+  let userId = userIdOrToken;
+  if (typeof userIdOrToken === "string" && userIdOrToken.includes(".")) {
+    const payload = decodeJwtPayload(userIdOrToken);
+    userId = payload?.user_id || payload?.id || payload?.sub || userIdOrToken;
   }
 
   const currentIdentifiers = new Set(
@@ -65,6 +86,10 @@ export const connectSocket = (userId) => {
   socket.onclose = () => {
     console.log("WebSocket closed");
     socket = null;
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(() => {
+      if (lastConnectParam) connectSocket(lastConnectParam);
+    }, 3000);
   };
 
 };
@@ -73,6 +98,10 @@ export const disconnectSocket = () => {
   if (socket) {
     socket.close();
     socket = null;
+  }
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
   }
 };
 

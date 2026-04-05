@@ -270,6 +270,7 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_S3_FILE_OVERWRITE = os.environ.get("AWS_S3_FILE_OVERWRITE", "False") == "True"
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = os.environ.get("AWS_QUERYSTRING_AUTH", "True") == "True"
+AWS_QUERYSTRING_EXPIRE = int(os.environ.get("AWS_QUERYSTRING_EXPIRE", "3600"))
 
 if AWS_STORAGE_BUCKET_NAME and AWS_S3_REGION_NAME:
     # For private buckets with signed URLs, avoid setting a custom domain.

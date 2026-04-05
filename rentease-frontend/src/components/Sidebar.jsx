@@ -1,11 +1,11 @@
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-import { BadgeCheck, BookOpenCheck, CreditCard, LayoutGrid, LogOut, MessageCircle } from "lucide-react";
+import { BadgeCheck, BookOpenCheck, CreditCard, LayoutGrid, LogOut, MessageCircle, X } from "lucide-react";
 import useUnreadMessages from "../hooks/useUnreadMessages";
 
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen = false, onClose }) => {
   const unreadCount = useUnreadMessages();
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -14,7 +14,8 @@ const Sidebar = () => {
   const handleLogout = () => {
     logout();
     localStorage.clear();
-    navigate("/login");
+    navigate("/login", { replace: true });
+    if (onClose) onClose();
   };
 
 
@@ -24,32 +25,41 @@ const Sidebar = () => {
       : "text-slate-600 hover:bg-white hover:text-teal-700"
     }`;
 
-  return (
-    <aside className="fixed left-0 top-0 z-[960] hidden h-screen w-[280px] overflow-y-auto border-r border-slate-200 bg-[#eaf2ef] p-5 lg:flex lg:flex-col">
+  const sidebarContent = (
+    <>
       <div className="glass rounded-2xl p-5">
-        <Link to="/" className="mb-6 flex items-center gap-2 no-underline">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 text-sm font-bold text-white">R</span>
-          <span className="text-sm font-extrabold tracking-tight text-slate-900">RentEase</span>
-        </Link>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-center gap-2 no-underline" onClick={onClose}>
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 text-sm font-bold text-white">R</span>
+            <span className="text-sm font-extrabold tracking-tight text-slate-900">RentEase</span>
+          </Link>
+          <button
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-full p-2 text-slate-500 hover:bg-white/60 lg:hidden"
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
         <nav className="flex flex-col gap-2">
-          <Link to="/my-rentals" className={navClass("/my-rentals")}>
+          <Link to="/my-rentals" className={navClass("/my-rentals")} onClick={onClose}>
             <LayoutGrid size={17} />
             My Rentals
           </Link>
-          <Link to="/profilepage" className={navClass("/profilepage")}>
+          <Link to="/profilepage" className={navClass("/profilepage")} onClick={onClose}>
             <BadgeCheck size={17} />
             Profile
           </Link>
-          <Link to="/bookings" className={navClass("/bookings")}>
+          <Link to="/bookings" className={navClass("/bookings")} onClick={onClose}>
             <BookOpenCheck size={17} />
             Bookings
           </Link>
-          <Link to="/bankdetails" className={navClass("/bankdetails")}>
+          <Link to="/bankdetails" className={navClass("/bankdetails")} onClick={onClose}>
             <CreditCard size={17} />
             Bank Details
           </Link>
-          <Link to="/messages" className={navClass("/messages")}>
+          <Link to="/messages" className={navClass("/messages")} onClick={onClose}>
             <div className="relative">
               <MessageCircle size={18} />
 
@@ -73,7 +83,25 @@ const Sidebar = () => {
           Logout
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[950] bg-slate-900/40 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={`fixed left-0 top-0 z-[960] h-screen w-[280px] overflow-y-auto border-r border-slate-200 bg-[#eaf2ef] p-5 transition-transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:flex lg:flex-col lg:translate-x-0`}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 };
 

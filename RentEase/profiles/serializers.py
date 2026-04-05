@@ -57,7 +57,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.phone = validated_data.get("phone", instance.phone)
         instance.address = validated_data.get("address", instance.address)
-        instance.panchayat = validated_data.get("panchayat", instance.panchayat)
+
+        new_panchayat = validated_data.get("panchayat", instance.panchayat)
+        if new_panchayat and new_panchayat != instance.panchayat:
+            instance.panchayat = new_panchayat
+            # Keep the user's assets aligned to the current location.
+            from assets.models import Asset
+
+            Asset.objects.filter(owner=instance.user).update(city=new_panchayat)
         if "profile_photo" in validated_data:
             instance.profile_photo = validated_data.get("profile_photo")
 

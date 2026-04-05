@@ -1,104 +1,23 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-import { connectSocket } from "../services/Socket";
 import { ArrowRight, Leaf, ShieldCheck, Sparkles, TimerReset } from "lucide-react";
 import AnimatedRentalIllustration from "../components/AnimatedRentalIllustration";
 import Snowfall from "react-snowfall";
-import api from "../api/axios";
-
-import { getToken, onMessage } from "firebase/messaging";
-import { messaging } from "../firebase";
 
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("access");
-    const currentIdentifiers = new Set(
-      [
-        localStorage.getItem("username"),
-        localStorage.getItem("email"),
-        localStorage.getItem("name"),
-        localStorage.getItem("admin_email"),
-      ]
-        .filter(Boolean)
-        .map((v) => v.toString().trim().toLowerCase())
-        .filter(Boolean)
-    );
-    const isForCurrentUser = (payload) => {
-      const recipient =
-        payload?.data?.recipient_username ||
-        payload?.data?.recipient ||
-        payload?.data?.target_user ||
-        payload?.data?.username ||
-        "";
-
-      if (!recipient) return true;
-      if (currentIdentifiers.size === 0) return true;
-      return currentIdentifiers.has(recipient.toString().trim().toLowerCase());
-    };
-
-    if (!isAuthenticated || !accessToken) return;
-
-    connectSocket(accessToken);
-
-    const setupFCM = async () => {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") return;
-
-        const fcmToken = await getToken(messaging, {
-          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-        });
-
-        if (!fcmToken) return;
-
-        await api.post("save-fcm-token/", { device_token: fcmToken });
-      } catch (error) {
-        console.error("FCM Flow Error:", error.response?.data || error.message);
-      }
-    };
-
-    setupFCM();
-
+    if (!isAuthenticated) return;
     const audio = new Audio("/notification.mp3");
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      if (!isForCurrentUser(payload)) return;
-
-      const eventType = payload?.data?.event_type;
-
-      audio.play();
-
-      switch (eventType) {
-        case "RENT_REQUEST_CREATED":
-          window.dispatchEvent(new Event("new_request"));
-          window.dispatchEvent(new Event("new_notification"));
-          window.dispatchEvent(new Event("realtime_update"));
-          break;
-
-        case "RENT_REQUEST_APPROVED":
-          window.dispatchEvent(new Event("request_approved"));
-          window.dispatchEvent(new Event("new_notification"));
-          window.dispatchEvent(new Event("realtime_update"));
-          break;
-
-        case "RENT_REQUEST_REJECTED":
-          window.dispatchEvent(new Event("request_rejected"));
-          window.dispatchEvent(new Event("new_notification"));
-          window.dispatchEvent(new Event("realtime_update"));
-          break;
-
-        default:
-          window.dispatchEvent(new Event("new_notification"));
-          window.dispatchEvent(new Event("realtime_update"));
-      }
-    });
-
+    const handleRealtime = () => {
+      audio.play().catch(() => undefined);
+    };
+    window.addEventListener("new_notification", handleRealtime);
     return () => {
-      if (unsubscribe) unsubscribe();
+      window.removeEventListener("new_notification", handleRealtime);
     };
   }, [isAuthenticated]);
 

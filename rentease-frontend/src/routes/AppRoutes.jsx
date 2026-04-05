@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import Login from "../pages/login";
 import Home from "../pages/Home";
 import Register from "../pages/register";
@@ -31,6 +32,7 @@ import ChatWidget from "../components/ChatWidget";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuthStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
   const hideSidebarRoutes = [
@@ -61,7 +63,7 @@ const AppRoutes = () => {
         path="/login"
         element={
           isAuthenticated ? (
-            <Navigate to="/" />
+            <Navigate to="/" replace />
           ) : (
             <PublicRoute>
               <Login />
@@ -82,10 +84,18 @@ const AppRoutes = () => {
         element={
           <ProfileCompletionGate>
             <div className="app-shell">
-              {shouldShowUserSidebar && <Sidebar />}
+              {shouldShowUserSidebar && (
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  onClose={() => setSidebarOpen(false)}
+                />
+              )}
 
               <div className={`app-main ${shouldShowUserSidebar ? "lg:ml-[280px]" : ""}`}>
-                <Navbar />
+                <Navbar
+                  showMenuToggle={shouldShowUserSidebar}
+                  onMenuToggle={() => setSidebarOpen((prev) => !prev)}
+                />
                 <main className={isAuthenticated ? "app-content" : ""}>
                   <Routes>
                     <Route path="/" element={<Home />} />

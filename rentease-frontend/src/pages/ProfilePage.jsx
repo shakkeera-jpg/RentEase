@@ -11,6 +11,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [newProfilePhoto, setNewProfilePhoto] = useState(null);
   const [photoVersion, setPhotoVersion] = useState(Date.now());
+  const [photoRefreshAttempted, setPhotoRefreshAttempted] = useState(false);
 
   const [districts, setDistricts] = useState([]);
   const [taluks, setTaluks] = useState([]);
@@ -35,6 +36,12 @@ const ProfilePage = () => {
     loadData();
     fetchDistricts();
   }, [fetchProfile]);
+
+  useEffect(() => {
+    if (photoRefreshAttempted) {
+      setPhotoRefreshAttempted(false);
+    }
+  }, [profile?.profile_photo]);
 
   const fetchDistricts = async () => {
     try {
@@ -113,6 +120,11 @@ const ProfilePage = () => {
     `${profilePhotoVersion}-${photoVersion}`
   );
   const pendingPhotoLabel = newProfilePhoto ? newProfilePhoto.name : "Upload profile photo (optional)";
+  const handlePhotoError = async () => {
+    if (photoRefreshAttempted) return;
+    setPhotoRefreshAttempted(true);
+    await fetchProfile({ force: true });
+  };
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 px-4 py-8">
@@ -120,7 +132,12 @@ const ProfilePage = () => {
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 overflow-hidden rounded-full bg-gradient-to-br from-teal-600 to-emerald-500 text-white shadow-md shadow-teal-200">
             {profilePhotoRenderUrl ? (
-              <img src={profilePhotoRenderUrl} alt={profile.name} className="h-full w-full object-cover" />
+              <img
+                src={profilePhotoRenderUrl}
+                alt={profile.name}
+                className="h-full w-full object-cover"
+                onError={handlePhotoError}
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-lg font-extrabold">{avatarChar}</div>
             )}

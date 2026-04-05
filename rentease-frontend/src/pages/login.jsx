@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import useProfileStore from "../store/ProfileStore";
@@ -10,7 +10,7 @@ import { canAccessGeneralRoutes } from "../utils/profileStatus";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, loading, error, googleLogin } = useAuthStore();
+  const { login, loading, error, googleLogin, isAuthenticated } = useAuthStore();
   const { fetchProfile } = useProfileStore();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
@@ -25,12 +25,12 @@ const Login = () => {
     if (result.success) {
       if (result.data.mfa_required) {
         localStorage.setItem("temp_mfa_email", result.data.email);
-        navigate("/verify-mfa-login");
+        navigate("/verify-mfa-login", { replace: true });
         return;
       }
 
       if (result.agreementRequired) {
-        navigate("/agreement");
+        navigate("/agreement", { replace: true });
         return;
       }
 
@@ -73,20 +73,20 @@ const Login = () => {
         }
 
         if (canAccessGeneralRoutes(profileData)) {
-          navigate("/");
+          navigate("/", { replace: true });
         } else {
-          navigate("/profile");
+          navigate("/profile", { replace: true });
         }
       } else if (role === "ADMIN") {
         if (otp_required === true) {
           localStorage.setItem("admin_email", result.data.email);
-          navigate("/admin-verify-otp");
+          navigate("/admin-verify-otp", { replace: true });
         } else {
           localStorage.setItem("access", tokens.access);
           localStorage.setItem("refresh", tokens.refresh);
           localStorage.setItem("role", "ADMIN");
           localStorage.setItem("name", name || result.data.name || "Admin");
-          navigate("/admin/verification");
+          navigate("/admin/verification", { replace: true });
         }
       }
     }
@@ -100,12 +100,12 @@ const Login = () => {
     if (result.success) {
       if (result.data.mfa_required) {
         localStorage.setItem("temp_mfa_email", result.data.email);
-        navigate("/verify-mfa-login");
+        navigate("/verify-mfa-login", { replace: true });
         return;
       }
 
       if (result.agreementRequired) {
-        navigate("/agreement");
+        navigate("/agreement", { replace: true });
         return;
       }
 
@@ -137,24 +137,30 @@ const Login = () => {
         }
 
         if (canAccessGeneralRoutes(profileData)) {
-          navigate("/");
+          navigate("/", { replace: true });
         } else {
-          navigate("/profile");
+          navigate("/profile", { replace: true });
         }
       } else if (role === "ADMIN") {
         if (otp_required === true) {
           localStorage.setItem("admin_email", formData.email);
-          navigate("/admin-verify-otp");
+          navigate("/admin-verify-otp", { replace: true });
         } else {
           localStorage.setItem("access", tokens.access);
           localStorage.setItem("refresh", tokens.refresh);
           localStorage.setItem("role", "ADMIN");
           localStorage.setItem("name", name || "Admin");
-          navigate("/admin/verification");
+          navigate("/admin/verification", { replace: true });
         }
       }
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f4f8f7] p-4 md:p-8">

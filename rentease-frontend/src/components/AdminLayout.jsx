@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { BadgeCheck, Landmark, LogOut, ShieldCheck, Users } from "lucide-react";
+import useAuthStore from "../store/authStore";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
   const adminName = localStorage.getItem("name") || "Admin";
   const adminEmail = localStorage.getItem("username") || "";
 
@@ -15,8 +17,9 @@ const AdminLayout = ({ children }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("access");
-    navigate("/login");
+    logout();
+    localStorage.clear();
+    navigate("/login", { replace: true });
   };
 
   return (

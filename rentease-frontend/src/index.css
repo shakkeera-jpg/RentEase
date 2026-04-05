@@ -78,6 +78,12 @@ a {
   padding: 24px;
 }
 
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 16px;
+  }
+}
+
 .glass {
   background: var(--bg-card);
   border: 1px solid var(--line);
