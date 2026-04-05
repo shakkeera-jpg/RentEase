@@ -54,6 +54,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER || 'ubuntu' }}
+          port: 22
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
