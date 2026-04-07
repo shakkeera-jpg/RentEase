@@ -31,7 +31,9 @@ def other_user(db):
 
 
 @pytest.fixture()
-def auth_client(api_client, user):
+def auth_client(api_client, user, user_profile):
+    # Ensure the authenticated user has an approved, completed profile with location
+    # so location-scoped queries and approval-gated endpoints work in tests.
     api_client.force_authenticate(user=user)
     return api_client
 
