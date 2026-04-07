@@ -8,9 +8,33 @@ on:
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: rentease
+          POSTGRES_PASSWORD: rentease
+          POSTGRES_DB: rentease_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rentease -d rentease_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: RentEase
+    env:
+      SECRET_KEY: "ci-secret-key"
+      DEBUG: "True"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      CSRF_TRUSTED_ORIGINS: "http://localhost"
+      POSTGRES_DB: rentease_test
+      POSTGRES_USER: rentease
+      POSTGRES_PASSWORD: rentease
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
