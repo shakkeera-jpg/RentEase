@@ -47,6 +47,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
+      - name: Debug __init__.py
+        run: |
+          echo "=== RentEase/__init__.py ==="
+          sed -n '1,20p' RentEase/__init__.py
       - name: Run tests
         run: |
           python -m pytest -q
