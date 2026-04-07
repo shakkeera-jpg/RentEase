@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "../pages/login";
 import Home from "../pages/Home";
 import Register from "../pages/register";
@@ -55,6 +55,18 @@ const AppRoutes = () => {
     isAuthenticated &&
     !hideSidebarRoutes.includes(location.pathname) &&
     !isInternalAdminRoute;
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
 
   return (
     <>

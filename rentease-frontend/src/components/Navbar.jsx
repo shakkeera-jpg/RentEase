@@ -157,6 +157,9 @@ const Navbar = ({ showMenuToggle = false, onMenuToggle }) => {
 
           {isAuthenticated ? (
             <>
+              <div className="sm:hidden">
+                <NotificationBell />
+              </div>
               <div className="ml-2 hidden items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-1.5 sm:flex">
                 <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-teal-600 to-emerald-500 text-sm font-bold text-white">
                   {profilePhotoUrl ? (

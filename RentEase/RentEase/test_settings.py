@@ -17,8 +17,7 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "rentease-test-cache",
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
 
@@ -28,3 +27,7 @@ PASSWORD_HASHERS = [
 
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
+
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_dummy")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "test_secret")
+AI_SERVICE_URL = os.environ.get("AI_SERVICE_URL", "http://localhost")

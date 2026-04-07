@@ -66,6 +66,8 @@ def user_profile(db, user, panchayat):
             "phone": "9999999999",
             "address": "Test Address",
             "panchayat": panchayat,
+            "verification_status": "APPROVED",
+            "is_completed": True,
         },
     )
     if not profile.phone:
@@ -74,6 +76,10 @@ def user_profile(db, user, panchayat):
         profile.address = "Test Address"
     if profile.panchayat_id is None:
         profile.panchayat = panchayat
+    if profile.verification_status != "APPROVED":
+        profile.verification_status = "APPROVED"
+    if not profile.is_completed:
+        profile.is_completed = True
     profile.save()
     return profile
 
@@ -86,6 +92,8 @@ def other_user_profile(db, other_user, panchayat):
             "phone": "8888888888",
             "address": "Other Address",
             "panchayat": panchayat,
+            "verification_status": "APPROVED",
+            "is_completed": True,
         },
     )
     if not profile.phone:
@@ -94,5 +102,9 @@ def other_user_profile(db, other_user, panchayat):
         profile.address = "Other Address"
     if profile.panchayat_id is None:
         profile.panchayat = panchayat
+    if profile.verification_status != "APPROVED":
+        profile.verification_status = "APPROVED"
+    if not profile.is_completed:
+        profile.is_completed = True
     profile.save()
     return profile
